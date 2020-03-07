@@ -1,3 +1,7 @@
+__WARNING:__ This is the "Classic" or original verson of Gregg E. Berman's DCC++ code for the Arduino UNO. 
+We've provided minor fixes and retained it here for those who need it. If you are new "EX" version of 
+DCC++, you can find it here: https://github.com/DCC-EX/BaseStation
+
 What’s DCC++
 ------------
 
@@ -12,7 +16,7 @@ The DCC++ Controller provides operators with a customizable GUI to control their
 What’s in this Repository
 -------------------------
 
-This repository, BaseStation-Uno, contains a complete DCC++ Base Station sketch designed for compiling and uploading into an Arduino Uno.  All sketch files are in the folder named DCCpp_Uno. More information about the sketch can be found in the included PDF file.
+This repository, BaseStation-Uno, contains the complete "Classic" Version of the DCC++ Base Station sketch designed for compiling and uploading into an Arduino Uno.  All sketch files are in the folder named DCCpp_Uno. More information about the sketch can be found in the included PDF file.
 
 To utilize this sketch, simply download a zip file of this repository and open the file DCCpp_Uno.ino within the DCCpp_Uno folder using your Arduino IDE.  Please do not rename the folder containing the sketch code, nor add any files to that folder.  The Arduino IDE relies on the structure and name of the folder to properly display and compile the code.
 

@@ -37,7 +37,7 @@ The Master branch contains all of the Base Station functionality showed in the D
 * Control for an RGB LED Light Strip using pins 44, 45, and 46 on the Mega
 * An embedded AutoPilot routine that randomly selects a train to run through the entire layout, after which it is brought back into its original siding and the the patterns repeats with another randomly-selected train.  This is the AutoPilot routine showed on the DCC++ YouTube channel.  It does not require any computer, not DCC++ Controller to be running (DCC++ Controller contains a much more complicated 3-train Auto Pilot mode, also as shown on the DCC++ YouTube channel).
 
-Since these modules are very layout-specififc, they are not included in the Master branch.  However, they are included in the Development branch.  Please feel free to download and copy any relevant code to customize your own version of DCC++ Base Station.
+Since these modules are very layout-specififc, they are not included in the Master branch.  *However, they are included in the Development branch.*  Please feel free to download and copy any relevant code to customize your own version of DCC++ Base Station.
 
 -December 27, 2015
 

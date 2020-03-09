@@ -137,7 +137,7 @@ to the Main Operations Track, and CHANNEL B is connected to the Programming Trac
 
 DCC++ BASE STATION in split into multiple modules, each with its own header file:
 
-  DCCpp_Uno:        declares required global objects and contains initial Arduino setup()
+  DCCpp:            declares required global objects and contains initial Arduino setup()
                     and Arduino loop() functions, as well as interrput code for OC0B and OC1B.
                     Also includes declarations of optional array of Turn-Outs and optional array of Sensors 
 

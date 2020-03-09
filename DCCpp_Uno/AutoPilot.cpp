@@ -3,14 +3,14 @@
 AutoPilot.cpp
 COPYRIGHT (c) 2013 Gregg E. Berman
 
-Part of DCC++ BASE STATION for the Arduino Uno 
+Part of DCC++ BASE STATION for the Arduino
 
 **********************************************************************/
 
 #include "Accessories.h"
 #include "AutoPilot.h"
 #include "SerialCommand.h"
-#include "DCCpp_Uno.h"
+#include "DCCpp.h"
 #include "RGB.h"
 #include "EggTimer.h"
 #include "EEStore.h"

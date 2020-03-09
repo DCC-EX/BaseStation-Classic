@@ -3,7 +3,7 @@
 AutoPilot.h
 COPYRIGHT (c) 2013 Gregg E. Berman
 
-Part of DCC++ BASE STATION for the Arduino Uno 
+Part of DCC++ BASE STATION for the Arduino
 
 **********************************************************************/
 

@@ -9,8 +9,8 @@ Part of DCC++ BASE STATION for the Arduino
 
 #include "Config.h"
 
-#ifndef DCCpp_Uno_h
-#define DCCpp_Uno_h
+#ifndef DCCpp_h
+#define DCCpp_h
 
 /////////////////////////////////////////////////////////////////////////////////////
 // AUTO-SELECT ARDUINO BOARD

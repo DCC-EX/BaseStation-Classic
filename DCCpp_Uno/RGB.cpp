@@ -3,12 +3,12 @@
 RGB.cpp
 COPYRIGHT (c) 2013 Gregg E. Berman
 
-Part of DCC++ BASE STATION for the Arduino Uno 
+Part of DCC++ BASE STATION for the Arduino
 
 **********************************************************************/
 
 #include "RGB.h"
-#include "DCCpp_Uno.h"
+#include "DCCpp.h"
 #include <EEPROM.h>
 #include "EEStore.h"
 #include "Comm.h"

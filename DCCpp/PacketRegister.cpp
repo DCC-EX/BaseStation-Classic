@@ -98,7 +98,7 @@ void RegisterList::loadPacket(int nReg, byte *b, int nBytes, int nRepeat, int pr
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void RegisterList::setThrottle(char *s) volatile{
+void RegisterList::setThrottle(const char *s) volatile{
   byte b[5];                      // save space for checksum byte
   int nReg;
   int cab;
@@ -138,7 +138,7 @@ void RegisterList::setThrottle(char *s) volatile{
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void RegisterList::setFunction(char *s) volatile{
+void RegisterList::setFunction(const char *s) volatile{
   byte b[5];                      // save space for checksum byte
   int cab;
   int fByte, eByte;
@@ -168,7 +168,7 @@ void RegisterList::setFunction(char *s) volatile{
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void RegisterList::setAccessory(char *s) volatile{
+void RegisterList::setAccessory(const char *s) volatile{
   byte b[3];                      // save space for checksum byte
   int aAdd;                       // the accessory address (0-511 = 9 bits) 
   int aNum;                       // the accessory number within that address (0-3)
@@ -186,12 +186,12 @@ void RegisterList::setAccessory(char *s) volatile{
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void RegisterList::writeTextPacket(char *s) volatile{
+void RegisterList::writeTextPacket(const char *s) volatile{
   
   int nReg;
   byte b[6];
   int nBytes;
-  volatile RegisterList *regs;
+  // volatile RegisterList *regs; // is this needed? -fnd
     
   nBytes=sscanf(s,"%d %x %x %x %x %x",&nReg,b,b+1,b+2,b+3,b+4)-1;
   
@@ -206,14 +206,15 @@ void RegisterList::writeTextPacket(char *s) volatile{
   
 ///////////////////////////////////////////////////////////////////////////////
 
-void RegisterList::readCV(char *s) volatile{
+void RegisterList::readCV(const char *s) volatile{
   byte bRead[4];
   int bValue;
   int c,d,base;
   int cv, callBack, callBackSub;
 
-  if(sscanf(s,"%d %d %d",&cv,&callBack,&callBackSub)!=3)          // cv = 1-1024
-    return;    
+  if(sscanf(s,"%d %d %d",&cv,&callBack,&callBackSub) !=3) {         // cv = 1-1024
+    return;
+  }
   cv--;                              // actual CV addresses are cv-1 (0-1023)
   
   bRead[0]=0x78+(highByte(cv)&0x03);   // any CV>1023 will become modulus(1024) due to bit-mask of 0x03
@@ -222,20 +223,19 @@ void RegisterList::readCV(char *s) volatile{
   bValue=0;
   
   for(int i=0;i<8;i++){
-    
     c=0;
     d=0;
     base=0;
-
-    for(int j=0;j<ACK_BASE_COUNT;j++)
+    for(int j=0;j<ACK_BASE_COUNT;j++) {
       base+=analogRead(CURRENT_MONITOR_PIN_PROG);
+    }
     base/=ACK_BASE_COUNT;
 
     bRead[2]=0xE8+i;  
 
-    loadPacket(0,resetPacket,2,3);          // NMRA recommends starting with 3 reset packets
-    loadPacket(0,bRead,3,5);                // NMRA recommends 5 verfy packets
-    loadPacket(0,resetPacket,2,1);          // forces code to wait until all repeats of bRead are completed (and decoder begins to respond)
+    loadPacket(0,resetPacket,2,3);         // NMRA recommends starting with 3 reset packets
+    loadPacket(0,bRead,3,5);               // NMRA recommends 5 verfy packets
+    loadPacket(0,idlepacket,2,6);          // NMRA recommends 6 idle or reset packets for decoder recovery time
 
     for(int j=0;j<ACK_SAMPLE_COUNT;j++){
       c=(analogRead(CURRENT_MONITOR_PIN_PROG)-base)*ACK_SAMPLE_SMOOTHING+c*(1.0-ACK_SAMPLE_SMOOTHING);
@@ -250,16 +250,17 @@ void RegisterList::readCV(char *s) volatile{
   d=0;
   base=0;
 
-  for(int j=0;j<ACK_BASE_COUNT;j++)
+  for(int j=0;j<ACK_BASE_COUNT;j++) {
     base+=analogRead(CURRENT_MONITOR_PIN_PROG);
+  }
   base/=ACK_BASE_COUNT;
   
   bRead[0]=0x74+(highByte(cv)&0x03);   // set-up to re-verify entire byte
   bRead[2]=bValue;  
 
-  loadPacket(0,resetPacket,2,3);          // NMRA recommends starting with 3 reset packets
-  loadPacket(0,bRead,3,5);                // NMRA recommends 5 verfy packets
-  loadPacket(0,resetPacket,2,1);          // forces code to wait until all repeats of bRead are completed (and decoder begins to respond)
+  loadPacket(0,resetPacket,2,3);         // NMRA recommends starting with 3 reset packets
+  loadPacket(0,bRead,3,5);               // NMRA recommends 5 verfy packets
+  loadPacket(0,idlePacket,2,6);          // NMRA recommends 6 idle or reset packets for decoder recovery time
     
   for(int j=0;j<ACK_SAMPLE_COUNT;j++){
     c=(analogRead(CURRENT_MONITOR_PIN_PROG)-base)*ACK_SAMPLE_SMOOTHING+c*(1.0-ACK_SAMPLE_SMOOTHING);
@@ -284,7 +285,7 @@ void RegisterList::readCV(char *s) volatile{
 
 ///////////////////////////////////////////////////////////////////////////////
 
-void RegisterList::writeCVByte(char *s) volatile{
+void RegisterList::writeCVByte(const char *s) volatile{
   byte bWrite[4];
   int bValue;
   int c,d,base;
@@ -298,10 +299,14 @@ void RegisterList::writeCVByte(char *s) volatile{
   bWrite[1]=lowByte(cv);
   bWrite[2]=bValue;
 
-  loadPacket(0,resetPacket,2,1);
-  loadPacket(0,bWrite,3,4);
-  loadPacket(0,resetPacket,2,1);
-  loadPacket(0,idlePacket,2,10);
+ // loadPacket(0,resetPacket,2,1);  // fnd - this is the original Gregg code - fnd
+ // loadPacket(0,bWrite,3,4);
+ // loadPacket(0,resetPacket,2,1);
+ // loadPacket(0,idlePacket,2,10);
+  
+  loadPacket(0,resetPacket,2,3);        // NMRA recommends starting with 3 reset packets
+  loadPacket(0,bWrite,3,5);             // NMRA recommends 5 verify packets
+  loadPacket(0,bWrite,3,6);             // NMRA recommends 6 write or reset packets for decoder recovery time
 
   c=0;
   d=0;
@@ -311,17 +316,20 @@ void RegisterList::writeCVByte(char *s) volatile{
     base+=analogRead(CURRENT_MONITOR_PIN_PROG);
   base/=ACK_BASE_COUNT;
   
-  bWrite[0]=0x74+(highByte(cv)&0x03);   // set-up to re-verify entire byte
+  bWrite[0]=0x74+(highByte(cv)&0x03);     // set-up to re-verify entire byte
 
   loadPacket(0,resetPacket,2,3);          // NMRA recommends starting with 3 reset packets
   loadPacket(0,bWrite,3,5);               // NMRA recommends 5 verfy packets
-  loadPacket(0,resetPacket,2,1);          // forces code to wait until all repeats of bRead are completed (and decoder begins to respond)
-    
+  // loadPacket(0,resetPacket,2,1);      fnd    // forces code to wait until all repeats of bRead are completed (and decoder begins to respond)
+  loadPacket(0,bWrite,3,6);               // NMRA recommends 6 write or reset packets for decoder recovery time
+  
   for(int j=0;j<ACK_SAMPLE_COUNT;j++){
     c=(analogRead(CURRENT_MONITOR_PIN_PROG)-base)*ACK_SAMPLE_SMOOTHING+c*(1.0-ACK_SAMPLE_SMOOTHING);
     if(c>ACK_SAMPLE_THRESHOLD)
       d=1;
   }
+  
+  loadPacket(0,resetPacket,2,1);        // Final reset packet (and decoder begins to respond)  fnd - not in original code
     
   if(d==0)    // verify unsuccessful
     bValue=-1;
@@ -340,7 +348,7 @@ void RegisterList::writeCVByte(char *s) volatile{
   
 ///////////////////////////////////////////////////////////////////////////////
 
-void RegisterList::writeCVBit(char *s) volatile{
+void RegisterList::writeCVBit(const char *s) volatile{
   byte bWrite[4];
   int bNum,bValue;
   int c,d,base;
@@ -356,10 +364,14 @@ void RegisterList::writeCVBit(char *s) volatile{
   bWrite[1]=lowByte(cv);  
   bWrite[2]=0xF0+bValue*8+bNum;
 
-  loadPacket(0,resetPacket,2,1);
-  loadPacket(0,bWrite,3,4);
-  loadPacket(0,resetPacket,2,1);
-  loadPacket(0,idlePacket,2,10);
+  // loadPacket(0,resetPacket,2,1);  fnd - Gregg's old code
+  // loadPacket(0,bWrite,3,4);
+  // loadPacket(0,resetPacket,2,1);
+  // loadPacket(0,idlePacket,2,10);
+  
+  loadPacket(0,resetPacket,2,3);        // NMRA recommends starting with 3 reset packets
+  loadPacket(0,bWrite,3,5);             // NMRA recommends 5 verify packets
+  loadPacket(0,bWrite,3,6);             // NMRA recommends 6 write or reset packets for decoder recovery time
 
   c=0;
   d=0;
@@ -370,17 +382,18 @@ void RegisterList::writeCVBit(char *s) volatile{
   base/=ACK_BASE_COUNT;
   
   bitClear(bWrite[2],4);              // change instruction code from Write Bit to Verify Bit
-
-  loadPacket(0,resetPacket,2,3);          // NMRA recommends starting with 3 reset packets
-  loadPacket(0,bWrite,3,5);               // NMRA recommends 5 verfy packets
-  loadPacket(0,resetPacket,2,1);          // forces code to wait until all repeats of bRead are completed (and decoder begins to respond)
+  loadPacket(0,resetPacket,2,3);      // NMRA recommends starting with 3 reset packets
+  loadPacket(0,bWrite,3,5);           // NMRA recommends 5 verfy packets
+  loadPacket(0,bWrite,3,6);           // NMRA recommends 6 write or reset packets for decoder recovery time
     
   for(int j=0;j<ACK_SAMPLE_COUNT;j++){
     c=(analogRead(CURRENT_MONITOR_PIN_PROG)-base)*ACK_SAMPLE_SMOOTHING+c*(1.0-ACK_SAMPLE_SMOOTHING);
     if(c>ACK_SAMPLE_THRESHOLD)
       d=1;
   }
-    
+  
+  loadPacket(0,resetPacket,2,1);      // Final reset packetcompleted (and decoder begins to respond) fnd - added code
+  
   if(d==0)    // verify unsuccessful
     bValue=-1;
   
@@ -400,7 +413,7 @@ void RegisterList::writeCVBit(char *s) volatile{
   
 ///////////////////////////////////////////////////////////////////////////////
 
-void RegisterList::writeCVByteMain(char *s) volatile{
+void RegisterList::writeCVByteMain(const char *s) volatile{
   byte b[6];                      // save space for checksum byte
   int cab;
   int cv;
@@ -425,7 +438,7 @@ void RegisterList::writeCVByteMain(char *s) volatile{
   
 ///////////////////////////////////////////////////////////////////////////////
 
-void RegisterList::writeCVBitMain(char *s) volatile{
+void RegisterList::writeCVBitMain(const char *s) volatile{
   byte b[6];                      // save space for checksum byte
   int cab;
   int cv;
@@ -467,6 +480,11 @@ void RegisterList::printPacket(int nReg, byte *b, int nBytes, int nRepeat) volat
   INTERFACE.print(nRepeat);
   INTERFACE.print(">");
 } // RegisterList::printPacket()
+
+byte RegisterList::idlePacket[3]={0xFF,0x00,0};                           // always leave extra byte for checksum computation
+byte RegisterList::resetPacket[3]={0x00,0x00,0};    // fnd - what is this tagged on? Not Gregg's original code
+byte RegisterList::bitMask[]={0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01};   // masks used in interrupt routine to speed the query of a single bit in a Packet
+
 
 ///////////////////////////////////////////////////////////////////////////////
 

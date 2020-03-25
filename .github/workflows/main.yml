@@ -4,16 +4,20 @@ on: push
 
 jobs:
   build-uno:
+    runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v1
         - name: Build all example sketches
           uses: Legion2/arduino-builder-action@v2.0.0
           with:
             board: "arduino:avr:uno"
+            sketchDirectory: "DCCpp"
   build-mega:
+    runs-on: ubuntu-latest
     steps:
         - uses: actions/checkout@v1
         - name: Build all example sketches
           uses: Legion2/arduino-builder-action@v2.0.0
           with:
             board: "arduino:avr:mega"
+            sketchDirectory: "DCCpp"

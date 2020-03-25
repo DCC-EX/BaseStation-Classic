@@ -1,0 +1,23 @@
+name: Test Build
+
+on: push
+
+jobs:
+  build-uno:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v1
+        - name: Build BaseStation-Classic on the AVR Uno
+          uses: Legion2/arduino-builder-action@v2.0.0
+          with:
+            board: "arduino:avr:uno"
+            sketchDirectory: "DCCpp"
+  build-mega:
+    runs-on: ubuntu-latest
+    steps:
+        - uses: actions/checkout@v1
+        - name: Build BaseStation-Classic on the AVR Mega
+          uses: Legion2/arduino-builder-action@v2.0.0
+          with:
+            board: "arduino:avr:mega:cpu=atmega2560"
+            sketchDirectory: "DCCpp"

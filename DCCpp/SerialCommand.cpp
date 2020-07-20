@@ -30,6 +30,7 @@ char SerialCommand::commandString[MAX_COMMAND_LENGTH+1];
 volatile RegisterList *SerialCommand::mRegs;
 volatile RegisterList *SerialCommand::pRegs;
 CurrentMonitor *SerialCommand::mMonitor;
+//String commandString_old = "x"; TODO: fnd see if this is used anywhere
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -371,6 +372,9 @@ void SerialCommand::parse(char *com){
       INTERFACE.print(ARDUINO_TYPE);
       INTERFACE.print(" / ");
       INTERFACE.print(MOTOR_SHIELD_NAME);
+	  INTERFACE.print(" / ");
+      INTERFACE.print("SERIAL ");
+      INTERFACE.print(SERIAL_PORT);    
       INTERFACE.print(": V-");
       INTERFACE.print(VERSION);
       INTERFACE.print(" / ");
@@ -384,8 +388,11 @@ void SerialCommand::parse(char *com){
       INTERFACE.print(": ");
 
       #if COMM_TYPE == 0
-        INTERFACE.print("SERIAL>");
+        INTERFACE.print("SERIAL>"); // TODO: fnd Should this be text or SERIAL_PORT followed by a ">" to close it? then remove next two lines
+		INTERFACE.print("<PORT: ");
+		INTERFACE.print(SERIA_PORT);
       #elif COMM_TYPE == 1
+	  INTERFACE.pring("IP: ");
         INTERFACE.print(Ethernet.localIP());
         INTERFACE.print(">");
       #endif

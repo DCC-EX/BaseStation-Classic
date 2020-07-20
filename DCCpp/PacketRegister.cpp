@@ -191,6 +191,7 @@ void RegisterList::writeTextPacket(const char *s) volatile{
   int nReg;
   byte b[6];
   int nBytes;
+// volatile RegisterList *regs;		TODO: fnd why was this added in another version?					  
     
   nBytes=sscanf(s,"%d %x %x %x %x %x",&nReg,b,b+1,b+2,b+3,b+4)-1;
   

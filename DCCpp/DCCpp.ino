@@ -1,8 +1,11 @@
 /**********************************************************************
 
 DCC++ BASE STATION
-COPYRIGHT (c) 2013-2016 Gregg E. Berman
+COPYRIGHT (c) 2013-2016 Gregg E. Bermann
 
+Add support for multiple comm ports on Mega - DTucker 09/01/2019
+
+A																									   
   This program is free software: you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
   the Free Software Foundation, either version 3 of the License, or
@@ -222,6 +225,23 @@ void setup(){
   Serial.begin(115200);            // configure serial interface
   Serial.flush();
 
+  if (SERIAL_PORT == 1){
+    Serial1.begin(115200);     // configure Serial1 interface
+    Serial.println("Serial1 Port setup - 115200 Baud");
+    Serial1.flush();
+  }
+
+  if (SERIAL_PORT == 2){
+    Serial2.begin(115200);     // configure Serial2 interface
+    Serial.println("Serial2 Port setup - 115200 Baud");
+    Serial2.flush();
+  }
+
+  if (SERIAL_PORT ==3){
+    Serial3.begin(115200);     // configure Serial3 interface
+    Serial.println("Serial3 Port setup - 115200 Baud");
+    Serial3.flush();
+  }    
   #ifdef SDCARD_CS
     pinMode(SDCARD_CS,OUTPUT);
     digitalWrite(SDCARD_CS,HIGH);     // Deselect the SD card
@@ -234,7 +254,7 @@ void setup(){
   if(!digitalRead(A5))
     showConfiguration();
 
-  Serial.print("<iDCC++ BASE STATION FOR ARDUINO ");      // Print Status to Serial Line regardless of COMM_TYPE setting so use can open Serial Monitor and check configurtion 
+  Serial.print("<iDCC++ BASE STATION FOR ARDUINO ");      // Print Status to USB Serial Port regardless of COMM_TYPE setting so use can open Serial Monitor and check configurtion 
   Serial.print(ARDUINO_TYPE);
   Serial.print(" / ");
   Serial.print(MOTOR_SHIELD_NAME);
@@ -245,7 +265,10 @@ void setup(){
   Serial.print(" ");
   Serial.print(__TIME__);
   Serial.print(">");
-
+//  Serial.print("<");
+//  Serial.print("SHOW_PACKETS = ");
+//  Serial.print(SHOW_PACKETS);
+//  Serial.println(">");
   #if COMM_TYPE == 1
     #ifdef IP_ADDRESS
       Ethernet.begin(mac,IP_ADDRESS);           // Start networking using STATIC IP Address
@@ -259,14 +282,52 @@ void setup(){
 
   Serial.print("<N");
   Serial.print(COMM_TYPE);
-  Serial.print(": ");
+ // Serial.print(": ");
 
   #if COMM_TYPE == 0
-    Serial.print("SERIAL>");
+    Serial.print("SERIAL");
+	Serial.print(",PORT:");
+	Serial.print(SERIAL_PORT);
+	Serial.print(",INTERFACE:");
+	Serial.print(INTERFACE);
+	Serial.println(">");
   #elif COMM_TYPE == 1
     Serial.print(Ethernet.localIP());
-    Serial.print(">");
+	Serial.print(",INTERFACE:");
+	Serial.print(INTERFACE);
+    Serial.println(">");
   #endif
+  
+ /********************************************************
+  Serial.print("<");
+  Serial.print("DCC_SIGNAL_PIN_MAIN = ");
+  Serial.print(DCC_SIGNAL_PIN_MAIN);
+  Serial.println(">");
+  Serial.print("<");
+  Serial.print("DCC_SIGNAL_PIN_PROG = ");
+  Serial.print(DCC_SIGNAL_PIN_PROG);
+  Serial.println(">");
+
+  Serial.print("<");
+  Serial.print("SIGNAL_ENABLE_PIN_MAIN = ");
+  Serial.print(SIGNAL_ENABLE_PIN_MAIN);
+  Serial.println(">");
+  Serial.print("<");
+  Serial.print("SIGNAL_ENABLE_PIN_PROG = ");
+  Serial.print(SIGNAL_ENABLE_PIN_PROG);
+  Serial.println(">");
+
+  #if MOTOR_SHIELD_TYPE == 0 || MOTOR_SHIELD_TYPE == 1
+    Serial.print("<");
+    Serial.print("DIRECTION_MOTOR_CHANNEL_PIN_A = ");
+    Serial.print(DIRECTION_MOTOR_CHANNEL_PIN_A);
+    Serial.println(">");
+    Serial.print("<");
+    Serial.print("DIRECTION_MOTOR_CHANNEL_PIN_B = ");
+    Serial.print(DIRECTION_MOTOR_CHANNEL_PIN_B);
+    Serial.println(">");
+   #endif
+**********************************************************/
   
   // CONFIGURE TIMER_1 TO OUTPUT 50% DUTY CYCLE DCC SIGNALS ON OC1B INTERRUPT PINS
   
@@ -280,9 +341,12 @@ void setup(){
 
   #define DCC_ONE_BIT_TOTAL_DURATION_TIMER1 1855
   #define DCC_ONE_BIT_PULSE_DURATION_TIMER1 927
+  
+//  #if MOTOR_SHIELD_TYPE == 0 || MOTOR_SHIELD_TYPE == 1  // Only set if // MOTOR_SHIELD_TYPE is 0 or 1 - DTucker mod for Generic PWM Motor Driver
 
   pinMode(DIRECTION_MOTOR_CHANNEL_PIN_A,INPUT);      // ensure this pin is not active! Direction will be controlled by DCC SIGNAL instead (below)
   digitalWrite(DIRECTION_MOTOR_CHANNEL_PIN_A,LOW);
+//  #endif TODO: fnd set for motor boards that have 2 PWM inputs
 
   pinMode(DCC_SIGNAL_PIN_MAIN, OUTPUT);      // THIS ARDUINO OUPUT PIN MUST BE PHYSICALLY CONNECTED TO THE PIN FOR DIRECTION-A OF MOTOR CHANNEL-A
 
@@ -309,6 +373,7 @@ void setup(){
 
   // CONFIGURE EITHER TIMER_0 (UNO) OR TIMER_3 (MEGA) TO OUTPUT 50% DUTY CYCLE DCC SIGNALS ON OC0B (UNO) OR OC3B (MEGA) INTERRUPT PINS
   
+	
 #ifdef ARDUINO_AVR_UNO      // Configuration for UNO
   
   // Directon Pin for Motor Shield Channel B - PROGRAMMING TRACK
@@ -322,8 +387,11 @@ void setup(){
   #define DCC_ONE_BIT_TOTAL_DURATION_TIMER0 28
   #define DCC_ONE_BIT_PULSE_DURATION_TIMER0 14
   
+ //#if MOTOR_SHIELD_TYPE == 0 || MOTOR_SHIELD_TYPE == 1  // Only set //if MOTOR_SHIELD_TYPE is 0 or 1 - DTucker mod for Generic PWM Motor Driver 
+  
   pinMode(DIRECTION_MOTOR_CHANNEL_PIN_B,INPUT);      // ensure this pin is not active! Direction will be controlled by DCC SIGNAL instead (below)
   digitalWrite(DIRECTION_MOTOR_CHANNEL_PIN_B,LOW);
+ //#endif  TODO: fnd check this for boards with dual PWM inputs
 
   pinMode(DCC_SIGNAL_PIN_PROG,OUTPUT);      // THIS ARDUINO OUTPUT PIN MUST BE PHYSICALLY CONNECTED TO THE PIN FOR DIRECTION-B OF MOTOR CHANNEL-B
 
@@ -359,10 +427,12 @@ void setup(){
 
   #define DCC_ONE_BIT_TOTAL_DURATION_TIMER3 1855
   #define DCC_ONE_BIT_PULSE_DURATION_TIMER3 927
+  
+//#if MOTOR_SHIELD_TYPE == 0 || MOTOR_SHIELD_TYPE == 1       // Only set if MOTOR_SHIELD_TYPE is 0 or 1 - DTucker mod for Generic PWM Motor Driver
 
   pinMode(DIRECTION_MOTOR_CHANNEL_PIN_B,INPUT);      // ensure this pin is not active! Direction will be controlled by DCC SIGNAL instead (below)
   digitalWrite(DIRECTION_MOTOR_CHANNEL_PIN_B,LOW);
-
+//#endif //TODO: fnd check this for pwm 
   pinMode(DCC_SIGNAL_PIN_PROG,OUTPUT);      // THIS ARDUINO OUTPUT PIN MUST BE PHYSICALLY CONNECTED TO THE PIN FOR DIRECTION-B OF MOTOR CHANNEL-B
 
   bitSet(TCCR3A,WGM30);     // set Timer 3 to FAST PWM, with TOP=OCR3A
@@ -498,8 +568,11 @@ void showConfiguration(){
   
   Serial.print("\n\nDCC SIG MAIN: ");
   Serial.print(DCC_SIGNAL_PIN_MAIN);
+  
+ //#if MOTOR_SHIELD_TYPE == 0 || MOTOR_SHIELD_TYPE == 1  // Only set if MOTOR_SHIELD_TYPE is 0 or 1 - DTucker mod for Generic PWM Motor Driver
   Serial.print("\n   DIRECTION: ");
   Serial.print(DIRECTION_MOTOR_CHANNEL_PIN_A);
+  //endif TODO: fnd PWM
   Serial.print("\n      ENABLE: ");
   Serial.print(SIGNAL_ENABLE_PIN_MAIN);
   Serial.print("\n     CURRENT: ");
@@ -507,8 +580,11 @@ void showConfiguration(){
 
   Serial.print("\n\nDCC SIG PROG: ");
   Serial.print(DCC_SIGNAL_PIN_PROG);
+  
+//#if MOTOR_SHIELD_TYPE == 0 || MOTOR_SHIELD_TYPE == 1  // Only set if MOTOR_SHIELD_TYPE is 0 or 1 - DTucker mod for Generic PWM Motor Driver
   Serial.print("\n   DIRECTION: ");
   Serial.print(DIRECTION_MOTOR_CHANNEL_PIN_B);
+  //#endif TODO: fnd
   Serial.print("\n      ENABLE: ");
   Serial.print(SIGNAL_ENABLE_PIN_PROG);
   Serial.print("\n     CURRENT: ");
@@ -523,7 +599,10 @@ void showConfiguration(){
   
   Serial.print("\n\nINTERFACE:    ");
   #if COMM_TYPE == 0
-    Serial.print("SERIAL");
+    Serial.print("SERIAL PORT:");
+	Serial.print(SERIAL_PORT);
+    Serial.print(",INTERFACE: - ");
+    Serial.print(INTERFACE);
   #elif COMM_TYPE == 1
     Serial.print(COMM_SHIELD_NAME);
     Serial.print("\nMAC ADDRESS:  ");

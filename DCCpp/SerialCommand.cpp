@@ -390,7 +390,7 @@ void SerialCommand::parse(char *com){
       #if COMM_TYPE == 0
         INTERFACE.print("SERIAL>"); // TODO: fnd Should this be text or SERIAL_PORT followed by a ">" to close it? then remove next two lines
 		INTERFACE.print("<PORT: ");
-		INTERFACE.print(SERIA_PORT);
+		INTERFACE.print(SERIAL_PORT);
       #elif COMM_TYPE == 1
 	  INTERFACE.pring("IP: ");
         INTERFACE.print(Ethernet.localIP());
@@ -574,5 +574,3 @@ void SerialCommand::parse(char *com){
 }; // SerialCommand::parse
 
 ///////////////////////////////////////////////////////////////////////////////
-
-

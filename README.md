@@ -22,7 +22,7 @@ This repository, BaseStation-Classic, contains the complete "Classic" Version of
 
 To utilize this sketch, simply download a zip file of this repository and open the file DCCpp.ino within the DCCpp_Uno folder using your Arduino IDE.  Please do not rename the folder containing the sketch code, nor add any files to that folder.  The Arduino IDE relies on the structure and name of the folder to properly display and compile the code.
 
-The latest production release of the Master branch is 1.2.1:
+The latest production release of the master branch is v1.2.2:
 
 * Supports both the Arduino Uno and Arduino Mega
 * Built-in configuration for both the original Arduino Motor Shield as well as a Pololu MC33926 Motor Shield
